@@ -116,7 +116,7 @@ export default class LoginScreen extends React.Component<any, State> {
     });
   };
 
-  getProfile = () => {
+  getProfile = async() => {
     console.log('Get Profile Start');
     this.setState({loading: {...this.state.loading, profileLoading: true}})
 
@@ -125,6 +125,7 @@ export default class LoginScreen extends React.Component<any, State> {
         this.setState({idInfo: {...this.state.idInfo, profile: {id: result.id, profile_image_url: result.profile_image_url, account_type: 'kakao'}}})
         this.setState({loading: {...this.state.loading, profileLoading: false}})
         console.log(`Get Profile Finished:${JSON.stringify(result)}`);
+        this.connectToChatServer(this.state.idInfo.profile.id)
         this.props.navigation.navigate('Search', {user_ide: this.state.idInfo.profile.id, user_account_type: this.state.idInfo.profile.account_type});
       })
       .catch(err => {
@@ -149,11 +150,11 @@ export default class LoginScreen extends React.Component<any, State> {
       });
   };
 
-  connectToChatServer = () => {
+  connectToChatServer = async(id: string) => {
     let connection = new WebSocket("ws://192.168.0.5:1323/connect");
 
     let body = {
-      "id": this.state.idInfo.profile.id
+      "id": id
     };
 
     connection.onopen = () => {
@@ -179,7 +180,6 @@ export default class LoginScreen extends React.Component<any, State> {
       <View style={styles.profile}>
         <Image style={styles.profilePhoto} source={{uri: this.state.idInfo.profile.profile_image_url !== "" ? this.state.idInfo.profile.profile_image_url : undefined}} />
         <Text>{`id : ${this.state.idInfo.profile.id}`}</Text>
-        <Text></Text>
       </View>
       <View style={styles.content}>
         <Button
@@ -189,7 +189,6 @@ export default class LoginScreen extends React.Component<any, State> {
             setTimeout(() => {
               this.getProfile();
             } , 500);
-            this.connectToChatServer();
             }
           }
           activeOpacity={0.5}
