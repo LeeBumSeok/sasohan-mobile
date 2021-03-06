@@ -17,7 +17,6 @@ type loadingProps = {
 
 type messageProps = {
     message: string;
-    tmpMessage: string;
 }
 
 type connectionProps = {
@@ -46,44 +45,52 @@ export default class chatRoom extends React.Component<any, State> {
             },
             sendMessageText: {
                 message: '',
-                tmpMessage: ''
             },
             connection: {
-                connection: new WebSocket("ws://192.168.0.5:1323/connect")
+                connection: new WebSocket("ws://192.168.11.103:1323/connect")
             }
         }
     }
     user_id = this.props.route.params.user_ide;
 
-    sendMessage = (text: string) => {
+    sendMessage = async(text: string, connection: WebSocket) => {
         let msg = {
           //"chat_room_id": chat_room_id,
-          //"user_id": this.user_id,
-          //"time": Date.now(),
+          "id": this.user_id,
+          "time": Date.now(),
           "text": text
         };
-
-        console.log(JSON.stringify(msg));
-        this.state.connection.connection.send(JSON.stringify(msg));
+        connection.send(JSON.stringify(msg));
     }
 
-    checkMessage = () => {
-        this.setState({sendMessageText: {...this.state.sendMessageText, message: this.state.sendMessageText.tmpMessage}})
-        this.sendMessage(this.state.sendMessageText.message);
+    setInputMessage = (text: string) => {
+        this.setState({sendMessageText: {...this.state.sendMessageText, message: text}})
+    }
+
+    resetInputMessage = () => {
+        this.setState({sendMessageText: {...this.state.sendMessageText, message: ""}})
     }
 
     render() {
         return(
             <View style={styles.container}>
                 <Text>{this.user_id}</Text>
+                <Text>{this.state.sendMessageText.message}</Text>
                 <TextInput
                 style={styles.textInput}
-                onChangeText={(text) => this.setState({sendMessageText: {...this.state.sendMessageText, tmpMessage: text}})}
+                value={this.state.sendMessageText.message}
+                onChangeText={this.setInputMessage}
                 placeholder="전송할 내용을 입력하세요."
                 />
                 <Button
                 isLoading={this.state.loading.sendMessageLoading}
-                onPress={this.checkMessage}
+                onPress={
+                    () => {
+                        this.sendMessage(this.state.sendMessageText.message, this.state.connection.connection);
+                        console.log(this.state.sendMessageText.message)
+                        this.resetInputMessage()
+                    }
+                }
                 activeOpacity={0.1}
                 style={styles.btnKakaoLogin}
                 textStyle={styles.txtKakaoLogin}>

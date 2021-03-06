@@ -88,7 +88,7 @@ export default class LoginScreen extends React.Component<any, State> {
         message: ""
       },
       connection: {
-        connection: new WebSocket("ws://192.168.0.5:1323/connect")
+        connection: new WebSocket("ws://192.168.11.103:1323/connect")
       }
     }
   }
@@ -99,10 +99,10 @@ export default class LoginScreen extends React.Component<any, State> {
 
     kakaoLogins.login([KAKAO_AUTH_TYPES.Talk, KAKAO_AUTH_TYPES.Account]).then(result => {
       this.setState({idInfo: {...this.state.idInfo, token: {accessToken: result.accessToken, refreshToken: result.refreshToken}}})
-      this.setState({loading: {...this.state.loading, loginLoading: false}}),
-      console.log(`Login Finished:${JSON.stringify(result)}`,
-      console.log(`Token:${JSON.stringify(this.state.idInfo.token)}`),
-      );
+      this.setState({loading: {...this.state.loading, loginLoading: false}})
+      console.log(`Login Finished:${JSON.stringify(result)}`)
+      console.log(`Token:${JSON.stringify(this.state.idInfo.token)}`)
+      ;
     })
     .catch(err => {
     if (err.code === 'E_CANCELLED_OPERATION') {
@@ -167,7 +167,9 @@ export default class LoginScreen extends React.Component<any, State> {
 
   // connectToChatServer connects to chat server.
   // @param id: user ID
-  connectToChatServer = async(id: string, connection: WebSocket) => {
+  connectToChatServer = (id: string, connect: WebSocket) => {
+    let connection = new WebSocket("ws://192.168.11.103:1323/connect")
+    
     let body = {
       "id": id
     };
