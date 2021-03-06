@@ -15,6 +15,7 @@ import HomeScreen from './src/home';
 import UserScreen from './src/user';
 import User from './src/signIn';
 import PostScreen from './src/post';
+import LoginScreen from './src/Login'
 
 const Tab = createBottomTabNavigator();
 const TabBarIcon = (focused: any, name: any) => {
@@ -68,7 +69,7 @@ class App extends Component {
             tabBarIcon: ({focused}: {focused: any}) =>
               TabBarIcon(focused, route.name),
           })}>
-          <Tab.Screen name="Search" component={User} />
+          <Tab.Screen name="Search" component={LoginScreen} />
           <Tab.Screen name="Post" component={PostScreen} />
           <Tab.Screen name="Home" component={HomeScreen} />
           <Tab.Screen name="User" component={UserScreen} />

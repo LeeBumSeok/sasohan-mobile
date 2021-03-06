@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 import LoginScreen from '../user';
-import User from '../search';
+import User from '../signIn';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { Component } from 'react';
 import { Image, View } from 'react-native';

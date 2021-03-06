@@ -14,6 +14,10 @@ import styles from './styles';
 
 // @ts-ignore
 import Button from 'apsl-react-native-button'
+import { createWatchProgram } from 'typescript';
+import { TabRouter } from '@react-navigation/native';
+import { concat } from 'react-native-reanimated';
+import { connect } from 'http2';
 
 interface Profile {
   id: string,
@@ -145,6 +149,30 @@ export default class LoginScreen extends React.Component<any, State> {
       });
   };
 
+  connectToChatServer = () => {
+    let connection = new WebSocket("ws://192.168.0.5:1323/connect");
+
+    let body = {
+      "id": this.state.idInfo.profile.id
+    };
+
+    connection.onopen = () => {
+      connection.send(JSON.stringify(body));
+    };
+
+    connection.onmessage = (event: WebSocketMessageEvent) => {
+      console.log(event.data);
+    };
+
+    connection.onerror = (error) => {
+      connection.close();
+    };
+
+    connection.onclose = (error) => {
+      console.log(error.code, error.message, error.reason);
+    };
+  }
+
   render() {
     return(
       <View style={styles.container}>
@@ -160,7 +188,8 @@ export default class LoginScreen extends React.Component<any, State> {
             this.kakaoLogin();
             setTimeout(() => {
               this.getProfile();
-            } , 500)
+            } , 500);
+            this.connectToChatServer();
             }
           }
           activeOpacity={0.5}
