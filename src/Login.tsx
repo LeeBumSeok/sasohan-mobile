@@ -8,16 +8,12 @@
 
 import 'react-native-gesture-handler';
 import React, {useState} from 'react';
-import {View, Text, Image, Share} from 'react-native';
+import {View, Text, Image, TextInput} from 'react-native';
 import kakaoLogins, {KAKAO_AUTH_TYPES} from '@react-native-seoul/kakao-login'
 import styles from './styles';
 
 // @ts-ignore
 import Button from 'apsl-react-native-button'
-import { createWatchProgram } from 'typescript';
-import { TabRouter } from '@react-navigation/native';
-import { concat } from 'react-native-reanimated';
-import { connect } from 'http2';
 
 interface Profile {
   id: string,
@@ -30,12 +26,14 @@ interface Token {
   refreshToken: string
 }
 
+
 type loadingProps = {
   loginLoading: boolean;
   logoutLoading: boolean;
   profileLoading: boolean;
   unlinkLoading: boolean;
   signinLoading: boolean;
+  sendMessageLoading: boolean
 }
 
 type idInfoProps = {
@@ -43,9 +41,19 @@ type idInfoProps = {
   profile: Profile;
 }
 
+type messageProps = {
+  message: string
+}
+
+type connectionProps = {
+  connection: WebSocket
+}
+
 type State = {
   loading: loadingProps;
   idInfo: idInfoProps;
+  sendMessageText: messageProps;
+  connection: connectionProps;
 }
 
 const TOKEN_EMPTY = {
@@ -69,11 +77,18 @@ export default class LoginScreen extends React.Component<any, State> {
         logoutLoading: false,
         profileLoading: false,
         unlinkLoading: false,
-        signinLoading: false
+        signinLoading: false,
+        sendMessageLoading: false
       },
       idInfo: {
         token: TOKEN_EMPTY,
         profile: PROFILE_EMPTY
+      },
+      sendMessageText: {
+        message: ""
+      },
+      connection: {
+        connection: new WebSocket("ws://192.168.0.5:1323/connect")
       }
     }
   }
@@ -125,8 +140,8 @@ export default class LoginScreen extends React.Component<any, State> {
         this.setState({idInfo: {...this.state.idInfo, profile: {id: result.id, profile_image_url: result.profile_image_url, account_type: 'kakao'}}})
         this.setState({loading: {...this.state.loading, profileLoading: false}})
         console.log(`Get Profile Finished:${JSON.stringify(result)}`);
-        this.connectToChatServer(this.state.idInfo.profile.id)
-        this.props.navigation.navigate('Search', {user_ide: this.state.idInfo.profile.id, user_account_type: this.state.idInfo.profile.account_type});
+        this.connectToChatServer(this.state.idInfo.profile.id, this.state.connection.connection)
+        this.props.navigation.navigate('chatRoom', {user_ide: this.state.idInfo.profile.id, user_account_type: this.state.idInfo.profile.account_type});
       })
       .catch(err => {
         this.setState({loading: {...this.state.loading, profileLoading: false}})
@@ -150,9 +165,9 @@ export default class LoginScreen extends React.Component<any, State> {
       });
   };
 
-  connectToChatServer = async(id: string) => {
-    let connection = new WebSocket("ws://192.168.0.5:1323/connect");
-
+  // connectToChatServer connects to chat server.
+  // @param id: user ID
+  connectToChatServer = async(id: string, connection: WebSocket) => {
     let body = {
       "id": id
     };
@@ -166,12 +181,58 @@ export default class LoginScreen extends React.Component<any, State> {
     };
 
     connection.onerror = (error) => {
+      console.log(console.error);
       connection.close();
     };
 
-    connection.onclose = (error) => {
-      console.log(error.code, error.message, error.reason);
+    connection.onclose = (event) => {
+      console.log(event.code, event.message, event.reason);
     };
+  }
+
+  // disconnectFromChatServer closes connection from chat server.
+  // @param id: user ID
+  disconnectFromChatServer = async(id: string) => {
+    fetch('http://192.168.0.5:1323/disconnect', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        'id': id
+      })
+    }).then().catch()
+  }
+
+  // newChatRoomID generates an unique chat room ID.
+  newChatRoomID = () => Date.now().toString();
+
+  // newChatRoom creates a new chat room with given user lists.
+  newChatRoom = (users: Array<string>) => {
+    fetch('http://192.168.0.5:1323/newchat', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_room_id": this.newChatRoomID(),
+        "users": users
+      })
+    }).then().catch()
+  }
+
+  // sendMessage sends mesg to chat room with the given chat room ID.
+  sendMessage = (id: string, chat_room_id: string, text: string, connection: WebSocket) => {
+    let msg = {
+      "chat_room_id": chat_room_id,
+      "user_id": this.state.idInfo.profile.id,
+      "time": Date.now(),
+      "text": text
+    };
+
+    connection.send(JSON.stringify(msg));
   }
 
   render() {
@@ -212,6 +273,12 @@ export default class LoginScreen extends React.Component<any, State> {
           textStyle={styles.txtKakaoLogin}>
           unlink
         </Button>
+        <TextInput
+          style={styles.textInput}
+          onChangeText={(text) => this.setState({sendMessageText: {...this.state.sendMessageText, message: text}})}
+          placeholder="전송할 내용을 입력하세요."
+        />
+        
       </View>
     </View>
     )

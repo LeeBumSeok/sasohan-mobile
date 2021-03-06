@@ -16,6 +16,7 @@ import UserScreen from './src/user';
 import User from './src/signIn';
 import PostScreen from './src/post';
 import LoginScreen from './src/Login'
+import chatRoom from './src/chatRoom';
 
 const Tab = createBottomTabNavigator();
 const TabBarIcon = (focused: any, name: any) => {
@@ -73,6 +74,7 @@ class App extends Component {
           <Tab.Screen name="Post" component={PostScreen} />
           <Tab.Screen name="Home" component={HomeScreen} />
           <Tab.Screen name="User" component={UserScreen} />
+          <Tab.Screen name="chatRoom" component={chatRoom} />
         </Tab.Navigator>
       </NavigationContainer>
     );
