@@ -88,7 +88,7 @@ export default class LoginScreen extends React.Component<any, State> {
         message: ""
       },
       connection: {
-        connection: new WebSocket("ws://192.168.11.103:1323/connect")
+        connection: new WebSocket("ws://192.168.0.5:1323/connect")
       }
     }
   }
@@ -167,9 +167,7 @@ export default class LoginScreen extends React.Component<any, State> {
 
   // connectToChatServer connects to chat server.
   // @param id: user ID
-  connectToChatServer = (id: string, connect: WebSocket) => {
-    let connection = new WebSocket("ws://192.168.11.103:1323/connect")
-    
+  connectToChatServer = (id: string, connection: WebSocket) => {
     let body = {
       "id": id
     };
@@ -205,36 +203,6 @@ export default class LoginScreen extends React.Component<any, State> {
         'id': id
       })
     }).then().catch()
-  }
-
-  // newChatRoomID generates an unique chat room ID.
-  newChatRoomID = () => Date.now().toString();
-
-  // newChatRoom creates a new chat room with given user lists.
-  newChatRoom = (users: Array<string>) => {
-    fetch('http://192.168.0.5:1323/newchat', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        "chat_room_id": this.newChatRoomID(),
-        "users": users
-      })
-    }).then().catch()
-  }
-
-  // sendMessage sends mesg to chat room with the given chat room ID.
-  sendMessage = (id: string, chat_room_id: string, text: string, connection: WebSocket) => {
-    let msg = {
-      "chat_room_id": chat_room_id,
-      "user_id": this.state.idInfo.profile.id,
-      "time": Date.now(),
-      "text": text
-    };
-
-    connection.send(JSON.stringify(msg));
   }
 
   render() {
