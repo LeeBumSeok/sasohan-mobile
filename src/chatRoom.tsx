@@ -94,7 +94,7 @@ export default class chatRoom extends React.Component<any, State> {
                 //"chat_room_id": this.newChatRoomID(),
                 "chat_rood_id": "123123123",
                 //"users": users
-                "users": [this.user_id, "1332"]
+                "users": ["123123", "1332"]
             })
         }
         fetch('http://192.168.0.5:1323/newchat', obj)
@@ -126,14 +126,14 @@ export default class chatRoom extends React.Component<any, State> {
                 Send
                 </Button>
 
-                {/* <Button
+                <Button
                 isLoading={this.state.loading.sendMessageLoading}
-                onPress={this.newChatRoom([this.user_id, '1234'])}
+                onPress={this.newChatRoom(["11", '1234'])}
                 activeOpacity={0.5}
                 style={styles.btnKakaoLogin}
                 textStyle={styles.txtKakaoLogin}>
                 새로운 채팅방 만들기  
-                </Button> */}
+                </Button>
             </View>
             
         )
