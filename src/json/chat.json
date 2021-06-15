@@ -1,0 +1,22 @@
+{
+    "messages": [
+        {
+            "user_id": "1234",
+            "chat_room_id": "abcd",
+            "time": 1614014777,
+            "text": "hello"
+        },
+        {
+            "user_id": "5678",
+            "chat_room_id": "efgh",
+            "time": 1614014825,
+            "text": "world"
+        },
+        {
+            "user_id": "5679",
+            "chat_room_id": "efgh",
+            "time": 1614014826,
+            "text": "123123123"
+        }
+    ]
+}
